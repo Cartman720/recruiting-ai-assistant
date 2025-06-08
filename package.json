@@ -6,12 +6,33 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
+    "build:vector-store": "tsx src/scripts/build-vector-store.ts"
   },
   "dependencies": {
+    "@langchain/community": "^0.3.45",
+    "@langchain/core": "^0.3.57",
+    "@langchain/openai": "^0.5.12",
+    "@langchain/pinecone": "^0.0.1",
+    "@ngneat/falso": "^7.4.0",
+    "@pinecone-database/pinecone": "^6.1.0",
+    "@prisma/client": "^6.9.0",
+    "@types/lodash": "^4.17.17",
+    "commander": "^12.0.0",
+    "csv-parse": "^5.6.0",
+    "date-fns": "^4.1.0",
+    "lodash": "^4.17.21",
+    "next": "15.3.3",
+    "prisma": "^6.9.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.3"
+    "semantic-chunking": "^2.4.3",
+    "slugify": "^1.6.6",
+    "tiktoken": "^1.0.21",
+    "zod": "^3.25.56"
   },
   "devDependencies": {
     "typescript": "^5",
@@ -22,6 +43,8 @@
     "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3",
+    "@types/bun": "latest",
+    "tsx": "^4.7.1"
   }
 }
