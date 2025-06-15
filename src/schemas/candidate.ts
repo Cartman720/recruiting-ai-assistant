@@ -1,14 +1,17 @@
 import { z } from "zod";
 import { IndustrySchema } from "./industry";
 
-const DATE_DESCRIPTION_TEMPLATE = (type: string, isEndDate: boolean = false) => `
-  The ${isEndDate ? 'end' : 'start'} date of the ${type}.
+const DATE_DESCRIPTION_TEMPLATE = (
+  type: string,
+  isEndDate: boolean = false
+) => `
+  The ${isEndDate ? "end" : "start"} date of the ${type}.
   Format: dd/MM/yyyy
   Rules:
   - Always use dd/MM/yyyy format
   - If month is unknown, use 01 (January)
   - If day is unknown, use 01
-  ${isEndDate ? `- Leave empty if the ${type} is ongoing` : ''}
+  ${isEndDate ? `- Leave empty if the ${type} is ongoing` : ""}
   Examples:
   - "15/01/2020" for January 15, 2020
   - "01/01/2020" for January 2020 (when day is unknown)
@@ -48,6 +51,7 @@ export const EducationSchema = z.object({
 export const CandidateSchema = z.object({
   name: z.string().describe("The name of the candidate"),
   email: z.string().describe("The email of the candidate"),
+  title: z.string().describe("The specialization and title of the candidate"),
   skills: z
     .array(z.string())
     .describe("The skills of the candidate, i.e. 'Python', 'SQL', 'AWS', etc."),
@@ -60,4 +64,21 @@ export const CandidateSchema = z.object({
   education: z
     .array(EducationSchema)
     .describe("The education of the candidate"),
+  yearsOfExperience: z.number(),
+  educationLevel: z.enum(["high_school", "bachelors", "masters", "phd"]),
+  expertiseLevel: z.enum([
+    "intern",
+    "junior",
+    "mid",
+    "senior",
+    "lead",
+    "principal",
+  ]),
+  city: z.string(),
+  state: z.string(),
+  country: z.string(),
+  certifications: z.array(z.string()),
+  languages: z.array(z.string()),
+  willingToRelocate: z.boolean(),
+  hasRemoteExperience: z.boolean(),
 });

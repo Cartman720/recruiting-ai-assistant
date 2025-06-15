@@ -1,7 +1,0 @@
--- AlterTable
-ALTER TABLE "Education" ALTER COLUMN "startDate" DROP NOT NULL,
-ALTER COLUMN "endDate" DROP NOT NULL;
-
--- AlterTable
-ALTER TABLE "Experience" ALTER COLUMN "startDate" DROP NOT NULL,
-ALTER COLUMN "endDate" DROP NOT NULL;

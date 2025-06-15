@@ -1,5 +1,5 @@
 import { readDataset } from "../lib/data";
-import { ChatOpenAI, OpenAI } from "@langchain/openai";
+import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { IndustrySchema } from "../schemas/industry";
 import { prisma } from "@/lib/prisma";
@@ -17,10 +17,12 @@ async function main() {
     new Set(dataset.map((row: any) => row.category))
   );
 
+  console.log(`Found ${uniqueIndustries.length} unique industries`);
+
   // Initialize OpenAI
   const model = new ChatOpenAI({
     modelName: "gpt-4o-mini",
-    temperature: 0.7,
+    temperature: 0,
   });
 
   // Create prompt template for industry description

@@ -1,0 +1,21 @@
+{
+    "mcpServers": {
+        "Prisma": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "prisma",
+                "mcp"
+            ]
+        },
+        "supabase": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@supabase/mcp-server-supabase@latest",
+                "--access-token",
+                "sbp_d10dbf7eb4a1c7c9208180d99b38f0fe3c517342"
+            ]
+        }
+    }
+}
