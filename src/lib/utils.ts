@@ -1,4 +1,6 @@
 import { isValid, parse } from "date-fns";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function parseDate(date?: string | null | undefined) {
   if (!date) {
@@ -13,3 +15,9 @@ export function parseDate(date?: string | null | undefined) {
 
   return undefined;
 }
+
+export function cn(...inputs: Parameters<typeof clsx>) {
+  return twMerge(clsx(...inputs));
+}
+
+export default cn;

@@ -4,6 +4,8 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { Index, Pinecone } from "@pinecone-database/pinecone";
 import { prisma } from "@/lib/prisma";
 import { Document } from "@langchain/core/documents";
+import { formatDate } from "date-fns";
+import { Education, Experience, Industry } from "@/generated/prisma";
 
 const program = new Command();
 
@@ -47,7 +49,7 @@ async function cleanVectorStore(index: Index, isDryRun: boolean) {
   console.log("Cleaning up vector store...");
 
   if (!isDryRun) {
-    await index.deleteAll();
+    await index.namespace("candidates").deleteAll();
   }
 }
 
@@ -61,18 +63,83 @@ async function fetchCandidates() {
   });
 }
 
-function createDocumentFromCandidate(candidate: any, index: number): Document {
-  const documentContent = `${candidate.name}\n--------\n\n${candidate.rawResume}`;
+export function buildExperience(experiences: Experience[]) {
+  if (!experiences.length) return "";
+  const header = "Experience:";
+  const lines = experiences.map((exp) => {
+    const start = exp.startDate ? formatDate(exp.startDate, "MM/yyyy") : "";
+    const end = exp.endDate ? formatDate(exp.endDate, "MM/yyyy") : "Present";
+    return `- ${exp.title} @ ${exp.company} (${start} – ${end}): ${exp.description}`;
+  });
+  return [header, ...lines].join("\n");
+}
+
+export function buildEducation(education: Education[]) {
+  if (!education.length) return "";
+  const header = "Education:";
+  const lines = education.map((ed) => {
+    const start = ed.startDate ? formatDate(ed.startDate, "MM/yyyy") : "";
+    const end = ed.endDate ? formatDate(ed.endDate, "MM/yyyy") : "Present";
+    return `- ${ed.degree}, ${ed.school} (${start} – ${end})`;
+  });
+  return [header, ...lines].join("\n");
+}
+
+function createDocumentFromCandidate(candidate: any): Document {
+  const documentContent = `
+      Name: ${candidate.name}
+      Title: ${candidate.title || ""}
+      
+      Summary:
+      ${candidate.summary}
+      
+      Experience:
+      ${buildExperience(candidate.experiences || [])}
+      
+      Education:
+      ${buildEducation(candidate.education || [])}
+      
+      Skills: ${candidate.skills?.join(", ") || "N/A"}
+      Certifications: ${candidate.certifications?.join(", ") || "None"}
+      Languages: ${candidate.languages?.join(", ") || "None"}
+      Industries: ${(candidate.industries || [])
+        .map((i: Industry) => i.slug || i.name)
+        .join(", ")}
+      
+      Willing to Relocate: ${candidate.willingToRelocate}
+      Remote Experience: ${candidate.hasRemoteExperience}
+      
+      Full Resume:
+      ${candidate.rawResume || ""}
+  `.trim();
+
+  // Metadata fields for filtering
+  const metadata = {
+    candidateId: candidate.id,
+    name: candidate.name,
+    email: candidate.email,
+    title: candidate.title,
+    yearsOfExperience: candidate.yearsOfExperience,
+    educationLevel: candidate.educationLevel,
+    expertiseLevel: candidate.expertiseLevel,
+    city: candidate.city,
+    state: candidate.state,
+    country: candidate.country,
+    location: candidate.location,
+    willingToRelocate: candidate.willingToRelocate,
+    hasRemoteExperience: candidate.hasRemoteExperience,
+    skills: candidate.skills,
+    certifications: candidate.certifications,
+    languages: candidate.languages,
+    industries: candidate.industries?.map((i: Industry) => i.slug),
+    createdAt: candidate.createdAt,
+    updatedAt: candidate.updatedAt,
+  };
 
   return {
+    id: `candidate-${candidate.id}`,
     pageContent: documentContent,
-    metadata: {
-      candidateId: candidate.id,
-      candidateName: candidate.name,
-      industries: candidate.industries.map((i: any) => i.name),
-      skills: candidate.skills,
-      index: index + 1, // 1-based index
-    },
+    metadata,
   };
 }
 
@@ -93,7 +160,7 @@ async function processCandidateBatch(
         candidates.length
       })`
     );
-    return createDocumentFromCandidate(candidate, globalIndex);
+    return createDocumentFromCandidate(candidate);
   });
 }
 
