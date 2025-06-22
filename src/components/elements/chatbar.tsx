@@ -10,7 +10,7 @@ type ChatbarProps = {
   hasStarted: boolean;
 };
 
-const Chatbar: React.FC<ChatbarProps> = ({
+export const Chatbar: React.FC<ChatbarProps> = ({
   value,
   onChange,
   onSend,
@@ -24,7 +24,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
       data-attach={hasStarted === true ? "true" : null}
       className={cn(
         "w-full mx-auto flex items-center gap-4 transition-bottom duration-500",
-        "p-4 bg-white rounded-lg border border-gray-200 shadow-md",
+        "p-4 bg-white rounded-lg border border-gray-200",
         "data-attach:bottom-5"
       )}
     >
@@ -44,7 +44,7 @@ const Chatbar: React.FC<ChatbarProps> = ({
         type="button"
         onClick={onClear}
         className={cn(
-          "cursor-pointer transition-colors transition-discrete inline-block hover:text-blue-400",
+          "cursor-pointer text-sm transition-colors transition-discrete inline-block hover:text-blue-400",
           value.length > 0 ? "block" : "hidden"
         )}
       >

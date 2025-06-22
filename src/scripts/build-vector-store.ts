@@ -35,8 +35,10 @@ async function initializeVectorStore(config: VectorStoreConfig) {
   });
 
   const index = pinecone.Index(config.pineconeIndex);
+
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: config.openAIApiKey,
+    modelName: "text-embedding-3-small",
   });
 
   return await PineconeStore.fromExistingIndex(embeddings, {
@@ -49,7 +51,9 @@ async function cleanVectorStore(index: Index, isDryRun: boolean) {
   console.log("Cleaning up vector store...");
 
   if (!isDryRun) {
-    await index.namespace("candidates").deleteAll();
+    await index.namespace("candidates").deleteAll().catch((e) => {
+      console.error(e);
+    });
   }
 }
 
@@ -87,17 +91,12 @@ export function buildEducation(education: Education[]) {
 
 function createDocumentFromCandidate(candidate: any): Document {
   const documentContent = `
-      Name: ${candidate.name}
       Title: ${candidate.title || ""}
       
+      Name: ${candidate.name}
+
       Summary:
       ${candidate.summary}
-      
-      Experience:
-      ${buildExperience(candidate.experiences || [])}
-      
-      Education:
-      ${buildEducation(candidate.education || [])}
       
       Skills: ${candidate.skills?.join(", ") || "N/A"}
       Certifications: ${candidate.certifications?.join(", ") || "None"}
@@ -105,12 +104,6 @@ function createDocumentFromCandidate(candidate: any): Document {
       Industries: ${(candidate.industries || [])
         .map((i: Industry) => i.slug || i.name)
         .join(", ")}
-      
-      Willing to Relocate: ${candidate.willingToRelocate}
-      Remote Experience: ${candidate.hasRemoteExperience}
-      
-      Full Resume:
-      ${candidate.rawResume || ""}
   `.trim();
 
   // Metadata fields for filtering
@@ -119,6 +112,7 @@ function createDocumentFromCandidate(candidate: any): Document {
     name: candidate.name,
     email: candidate.email,
     title: candidate.title,
+    summary: candidate.summary,
     yearsOfExperience: candidate.yearsOfExperience,
     educationLevel: candidate.educationLevel,
     expertiseLevel: candidate.expertiseLevel,

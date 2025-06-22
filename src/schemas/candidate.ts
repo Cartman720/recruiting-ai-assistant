@@ -48,6 +48,22 @@ export const EducationSchema = z.object({
     .optional(),
 });
 
+export const educationLevelSchema = z.enum([
+  "high_school",
+  "bachelors",
+  "masters",
+  "phd",
+]);
+
+export const expertiseLevelSchema = z.enum([
+  "intern",
+  "junior",
+  "mid",
+  "senior",
+  "lead",
+  "principal",
+]);
+
 export const CandidateSchema = z.object({
   name: z.string().describe("The name of the candidate"),
   email: z.string().describe("The email of the candidate"),
@@ -65,15 +81,8 @@ export const CandidateSchema = z.object({
     .array(EducationSchema)
     .describe("The education of the candidate"),
   yearsOfExperience: z.number(),
-  educationLevel: z.enum(["high_school", "bachelors", "masters", "phd"]),
-  expertiseLevel: z.enum([
-    "intern",
-    "junior",
-    "mid",
-    "senior",
-    "lead",
-    "principal",
-  ]),
+  educationLevel: educationLevelSchema,
+  expertiseLevel: expertiseLevelSchema,
   city: z.string(),
   state: z.string(),
   country: z.string(),

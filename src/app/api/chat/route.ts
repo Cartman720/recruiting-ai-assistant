@@ -1,63 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createReactAgent } from "@langchain/langgraph/prebuilt";
-import { ChatOpenAI } from "@langchain/openai";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
+import {
+  StoredMessage,
+  mapStoredMessageToChatMessage,
+} from "@langchain/core/messages";
+import { createAgent } from "@/lib/agents";
 
-const llm = new ChatOpenAI({
-  model: "o4-mini",
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// Placeholder for tools (to be implemented)
-const tools: any[] = [];
-
-// Create the chat provider (to be implemented)
-const chatProvider = createReactAgent({
-  llm,
-  tools,
-});
+interface ChatRequest {
+  id: string;
+  messages: StoredMessage[];
+  threadState?: any;
+}
 
 export async function POST(req: NextRequest) {
-  const sessionId = req.cookies.get("sessionId")?.value;
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const body: ChatRequest = await req.json();
 
-  console.log(sessionId);
-
-  const user = await prisma.user.upsert({
-    where: {
-      sessionId: sessionId,
-    },
-    create: {
-      sessionId: sessionId ?? "",
-    },
-    update: {
-      sessionId: sessionId ?? "",
-    },
-  });
-
-  if (!user) {
+  if (!data?.user) {
     return NextResponse.json({ error: "No user found" }, { status: 401 });
   }
 
-  const body = await req.json();
-
-  const thread = await prisma.thread.upsert({
-    where: {
-      id: body.id,
-    },
-    create: {
-      id: body.id,
-      userId: user?.id,
-    },
-    update: {
-      id: body.id,
-      userId: user?.id,
-    },
-    include: {
-      messages: true,
-    },
+  const agent = await createAgent({
+    userName: data.user.user_metadata.full_name,
+    email: data.user.user_metadata.email,
   });
 
-  console.log(body, thread);
+  const incomingMessages = body.messages.map(mapStoredMessageToChatMessage);
 
-  return NextResponse.json({ message: "Not implemented yet" });
+  const response = await agent.invoke(
+    {
+      messages: incomingMessages,
+      ...(body.threadState ? body.threadState : {}),
+    },
+    {
+      debug: true,
+    }
+  );
+
+  const { messages, ...threadState } = response;
+
+  return NextResponse.json({
+    messages: messages.map((msg) => msg.toDict()),
+    threadState,
+  });
 }

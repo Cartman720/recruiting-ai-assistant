@@ -1,0 +1,18 @@
+@reference "tailwindcss";
+
+.content {
+  table {
+    width: 100%;
+  }
+
+  p,
+  ol,
+  ul {
+    @apply mb-3;
+  }
+
+  ul,
+  ol {
+    @apply list-disc pl-6;
+  }
+}

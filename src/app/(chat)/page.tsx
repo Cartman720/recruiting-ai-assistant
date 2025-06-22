@@ -1,18 +1,15 @@
 "use client";
 
-import { useRef, useEffect, use } from "react";
-import ChatMessage from "@/components/elements/chat-message";
-import Chatbar from "@/components/elements/chatbar";
-import { cn } from "@/lib/utils";
-import { useChat, Message } from "@ai-sdk/react";
-import { initSession } from "@/lib/actions/session";
 import cuid from "cuid";
+import { useRef, useEffect } from "react";
+import { Chatbar } from "@/components/elements/chatbar";
+import {
+  ChatMessage,
+  ChatMessageType,
+} from "@/components/elements/chat-message";
+import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
-
-function mapRole(role: Message["role"]): "user" | "ai" {
-  if (role === "user") return "user";
-  return "ai"; // treat 'assistant', 'system', 'data' as 'ai'
-}
+import { useChat } from "./hooks";
 
 const exampleSearch =
   "Retrieve Human Resource Manager in the San Francisco Bay Area";
@@ -22,14 +19,14 @@ export default function ChatClientPage() {
   const searchParams = useSearchParams();
   const chatId = searchParams.get("chatId");
 
-  const { messages, input, setInput, handleSubmit, status, id } = useChat({
-    api: "/api/chat",
-    generateId: () => chatId ?? cuid(),
-  });
+  const { messages, threadState, input, setInput, handleSubmit, loading, id } =
+    useChat({
+      api: "/api/chat",
+      id: () => chatId ?? cuid(),
+    });
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const hasStarted = messages.length > 0;
-  const isLoading = status === "submitted" || status === "streaming";
 
   useEffect(() => {
     router.push(`?chatId=${id}`);
@@ -46,12 +43,15 @@ export default function ChatClientPage() {
     setInput("");
   };
 
+  console.log(threadState, messages);
+
   return (
     <div className="bg-base-200 py-12 flex flex-col min-h-screen">
       <div
         className={cn(
-          "w-full h-full flex-1 max-w-4xl mx-auto transition-all duration-500",
-          "flex flex-col items-center justify-center"
+          "w-full h-full flex-1 max-w-4xl mx-auto",
+          "flex flex-col items-center justify-center",
+          "transition-all duration-500"
         )}
       >
         <div
@@ -62,25 +62,26 @@ export default function ChatClientPage() {
         >
           <div
             ref={chatContainerRef}
-            className="w-full max-w-2xl mx-auto bg-base-100 shadow-xl rounded-xl p-4 overflow-y-auto mb-4"
-            style={{
-              minHeight: hasStarted ? "400px" : "0",
-              maxHeight: "60vh",
-              maxWidth: "912px",
-              border: "1px solid #e5e7eb",
-            }}
+            className={cn(
+              "w-full max-w-2xl mx-auto rounded-lg p-4 overflow-y-auto mb-4",
+              "max-w-[912px] border border-gray-200 bg-base-100",
+              "transition-all duration-500",
+              hasStarted ? "flex-1" : "max-h-[60vh]"
+            )}
           >
             {messages.length === 0 && !hasStarted && (
               <div className="text-center text-base-content/60 py-8">
                 <div className="space-y-2">
-                  <p className="text-lg font-medium">
+                  <p className="text-lg font-roboto-condensed">
                     Start a conversation to search for candidates.
                   </p>
                   <p className="text-base-content/70">
-                    For example:{" "}
+                    <strong className="font-roboto-condensed">
+                      For example:{" "}
+                    </strong>
                     <a
                       href="#"
-                      className="text-blue-500 hover:underline"
+                      className="bg-primary text-primary-content py-0.5 px-1 text-sm rounded-sm hover:underline"
                       onClick={() => setInput(exampleSearch)}
                     >
                       {exampleSearch}
@@ -89,12 +90,25 @@ export default function ChatClientPage() {
                 </div>
               </div>
             )}
-            {messages.map((msg) => (
-              <ChatMessage
-                key={msg.id}
-                message={{ ...msg, role: mapRole(msg.role) }}
-              />
-            ))}
+
+            <div className="flex flex-col gap-4">
+              {messages.map((msg) => (
+                <ChatMessage
+                  key={msg.data.id}
+                  type={msg.type as ChatMessageType}
+                  content={msg.data.content}
+                  artifact={msg.data.artifact}
+                  toolCalls={msg.data.tool_calls}
+                />
+              ))}
+            </div>
+
+            {loading && (
+              <div className="text-center text-base-content/60 my-auto py-8 flex items-center justify-center gap-4">
+                <p className="font-roboto-condensed">Loading...</p>
+                <span className="loading loading-spinner loading-lg"></span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -104,7 +118,7 @@ export default function ChatClientPage() {
           onChange={setInput}
           onSend={handleSubmit}
           onClear={handleClear}
-          isLoading={isLoading}
+          isLoading={loading}
           hasStarted={hasStarted}
         />
       </div>
