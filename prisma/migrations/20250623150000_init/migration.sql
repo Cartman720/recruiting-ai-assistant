@@ -18,7 +18,7 @@ CREATE TABLE "Industry" (
 CREATE TABLE "Candidate" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+    "email" TEXT,
     "summary" TEXT NOT NULL,
     "yearsOfExperience" INTEGER,
     "educationLevel" TEXT,
@@ -35,6 +35,7 @@ CREATE TABLE "Candidate" (
     "rawResume" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "title" TEXT,
 
     CONSTRAINT "Candidate_pkey" PRIMARY KEY ("id")
 );
@@ -69,6 +70,79 @@ CREATE TABLE "Education" (
 );
 
 -- CreateTable
+CREATE TABLE "Thread" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "state" JSONB,
+    "summary" TEXT,
+    "title" TEXT,
+
+    CONSTRAINT "Thread_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "checkpoint_blobs" (
+    "thread_id" TEXT NOT NULL,
+    "checkpoint_ns" TEXT NOT NULL DEFAULT '',
+    "channel" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "blob" BYTEA,
+
+    CONSTRAINT "checkpoint_blobs_pkey" PRIMARY KEY ("thread_id","checkpoint_ns","channel","version")
+);
+
+-- CreateTable
+CREATE TABLE "checkpoint_migrations" (
+    "v" INTEGER NOT NULL,
+
+    CONSTRAINT "checkpoint_migrations_pkey" PRIMARY KEY ("v")
+);
+
+-- CreateTable
+CREATE TABLE "checkpoint_writes" (
+    "thread_id" TEXT NOT NULL,
+    "checkpoint_ns" TEXT NOT NULL DEFAULT '',
+    "checkpoint_id" TEXT NOT NULL,
+    "task_id" TEXT NOT NULL,
+    "idx" INTEGER NOT NULL,
+    "channel" TEXT NOT NULL,
+    "type" TEXT,
+    "blob" BYTEA NOT NULL,
+
+    CONSTRAINT "checkpoint_writes_pkey" PRIMARY KEY ("thread_id","checkpoint_ns","checkpoint_id","task_id","idx")
+);
+
+-- CreateTable
+CREATE TABLE "checkpoints" (
+    "thread_id" TEXT NOT NULL,
+    "checkpoint_ns" TEXT NOT NULL DEFAULT '',
+    "checkpoint_id" TEXT NOT NULL,
+    "parent_checkpoint_id" TEXT,
+    "type" TEXT,
+    "checkpoint" JSONB NOT NULL,
+    "metadata" JSONB NOT NULL DEFAULT '{}',
+
+    CONSTRAINT "checkpoints_pkey" PRIMARY KEY ("thread_id","checkpoint_ns","checkpoint_id")
+);
+
+-- CreateTable
+CREATE TABLE "UserOAuthIntegration" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "accessToken" TEXT NOT NULL,
+    "refreshToken" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserOAuthIntegration_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "_CandidateToIndustry" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
@@ -81,9 +155,6 @@ CREATE UNIQUE INDEX "Industry_name_key" ON "Industry"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Industry_slug_key" ON "Industry"("slug");
-
--- CreateIndex
-CREATE UNIQUE INDEX "Candidate_email_key" ON "Candidate"("email");
 
 -- CreateIndex
 CREATE INDEX "_CandidateToIndustry_B_index" ON "_CandidateToIndustry"("B");
@@ -102,3 +173,4 @@ ALTER TABLE "_CandidateToIndustry" ADD CONSTRAINT "_CandidateToIndustry_A_fkey" 
 
 -- AddForeignKey
 ALTER TABLE "_CandidateToIndustry" ADD CONSTRAINT "_CandidateToIndustry_B_fkey" FOREIGN KEY ("B") REFERENCES "Industry"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+

@@ -1,12 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider        = "prisma-client-js"
-  output          = "../src/generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,33 +9,23 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum ExpertiseLevel {
-  intern
-  junior
-  mid
-  senior
-  lead
-  principal
-}
-
 model Industry {
   id          String      @id @default(cuid())
   name        String      @unique
   slug        String      @unique
   description String
-  parent      Industry?   @relation("IndustryHierarchy", fields: [parentId], references: [id])
   parentId    String?
-  children    Industry[]  @relation("IndustryHierarchy")
-  candidates  Candidate[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  parent      Industry?   @relation("IndustryHierarchy", fields: [parentId], references: [id])
+  children    Industry[]  @relation("IndustryHierarchy")
+  candidates  Candidate[] @relation("CandidateToIndustry")
 }
 
 model Candidate {
   id                  String          @id @default(cuid())
   name                String
   email               String?
-  title               String?
   summary             String
   yearsOfExperience   Int?
   educationLevel      String?
@@ -50,9 +34,6 @@ model Candidate {
   state               String?
   country             String?
   location            String?
-  experiences         Experience[]
-  education           Education[]
-  industries          Industry[]
   skills              String[]
   certifications      String[]
   languages           String[]
@@ -61,6 +42,10 @@ model Candidate {
   rawResume           String
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+  title               String?
+  education           Education[]
+  experiences         Experience[]
+  industries          Industry[]      @relation("CandidateToIndustry")
 }
 
 model Experience {
@@ -70,10 +55,10 @@ model Experience {
   startDate   DateTime?
   endDate     DateTime?
   description String
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   candidateId String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }
 
 model Education {
@@ -82,18 +67,78 @@ model Education {
   degree      String
   startDate   DateTime?
   endDate     DateTime?
-  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   candidateId String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }
 
 model Thread {
   id        String   @id @default(cuid())
   userId    String
-  title     String?
-  summary   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   state     Json?
+  summary   String?
+  title     String?
+}
+
+model checkpoint_blobs {
+  thread_id     String
+  checkpoint_ns String @default("")
+  channel       String
+  version       String
+  type          String
+  blob          Bytes?
+
+  @@id([thread_id, checkpoint_ns, channel, version])
+}
+
+model checkpoint_migrations {
+  v Int @id
+}
+
+model checkpoint_writes {
+  thread_id     String
+  checkpoint_ns String  @default("")
+  checkpoint_id String
+  task_id       String
+  idx           Int
+  channel       String
+  type          String?
+  blob          Bytes
+
+  @@id([thread_id, checkpoint_ns, checkpoint_id, task_id, idx])
+}
+
+model checkpoints {
+  thread_id            String
+  checkpoint_ns        String  @default("")
+  checkpoint_id        String
+  parent_checkpoint_id String?
+  type                 String?
+  checkpoint           Json
+  metadata             Json    @default("{}")
+
+  @@id([thread_id, checkpoint_ns, checkpoint_id])
+}
+
+model UserOAuthIntegration {
+  id           String   @id @default(cuid())
+  userId       String
+  provider     String
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum ExpertiseLevel {
+  intern
+  junior
+  mid
+  senior
+  lead
+  principal
 }
