@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
 }
 
 datasource db {
@@ -38,29 +38,29 @@ model Industry {
 }
 
 model Candidate {
-  id                String       @id @default(cuid())
-  name              String
-  email             String?
-  title             String?
-  summary           String
-  yearsOfExperience Int?
-  educationLevel    String?
-  expertiseLevel    ExpertiseLevel?
-  city              String?
-  state             String?
-  country           String?
-  location          String?
-  experiences       Experience[]
-  education         Education[]
-  industries        Industry[]
-  skills            String[]
-  certifications    String[]
-  languages         String[]
-  willingToRelocate Boolean?
+  id                  String          @id @default(cuid())
+  name                String
+  email               String?
+  title               String?
+  summary             String
+  yearsOfExperience   Int?
+  educationLevel      String?
+  expertiseLevel      ExpertiseLevel?
+  city                String?
+  state               String?
+  country             String?
+  location            String?
+  experiences         Experience[]
+  education           Education[]
+  industries          Industry[]
+  skills              String[]
+  certifications      String[]
+  languages           String[]
+  willingToRelocate   Boolean?
   hasRemoteExperience Boolean?
-  rawResume         String
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  rawResume           String
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 }
 
 model Experience {
@@ -88,28 +88,12 @@ model Education {
   updatedAt   DateTime  @updatedAt
 }
 
-model User {
-  id         String         @id @default(cuid())
-  sessionId  String         @unique
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-  threads    Thread[]
-}
-
 model Thread {
-  id        String    @id @default(cuid())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
   userId    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  messages  Message[]
-}
-
-model Message {
-  id             String       @id @default(cuid())
-  thread         Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  threadId       String
-  role           String       // "user" or "assistant"
-  content        String
-  createdAt      DateTime     @default(now())
+  title     String?
+  summary   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  state     Json?
 }

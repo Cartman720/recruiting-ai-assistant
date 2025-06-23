@@ -42,7 +42,7 @@ const googleCalendarCreateSchema = z.object({
     .describe("A list of attendees for the event."),
 });
 
-export async function createGoogleCalendarCreateTool(
+export function createGoogleCalendarCreateTool(
   calendar: calendar_v3.Calendar,
   calendarId: string
 ) {
@@ -73,5 +73,5 @@ export async function createGoogleCalendarCreateTool(
     },
   });
 
-  return googleCalendarCreateTool
+  return googleCalendarCreateTool;
 }

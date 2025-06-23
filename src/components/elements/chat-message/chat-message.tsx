@@ -15,7 +15,13 @@ export function ChatMessage({
   }
 
   if (type === "tool") {
-    return <ToolMessage toolCalls={toolCalls} artifact={artifact} />;
+    return (
+      <ToolMessage
+        toolCalls={toolCalls}
+        artifact={artifact}
+        content={content}
+      />
+    );
   }
 
   if (type === "ai") {

@@ -24,7 +24,7 @@ export const Chatbar: React.FC<ChatbarProps> = ({
       data-attach={hasStarted === true ? "true" : null}
       className={cn(
         "w-full mx-auto flex items-center gap-4 transition-bottom duration-500",
-        "p-4 bg-white rounded-lg border border-gray-200",
+        "p-4 bg-white rounded-xl border border-neutral-300",
         "data-attach:bottom-5"
       )}
     >

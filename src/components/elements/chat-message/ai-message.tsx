@@ -7,8 +7,12 @@ export interface AIMessageProps {
 }
 
 export function AIMessage({ content }: AIMessageProps) {
+  if (!content) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-type="ai">
       {content && (
         <div className="max-w-full">
           <Markdown

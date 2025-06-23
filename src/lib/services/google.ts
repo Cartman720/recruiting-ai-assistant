@@ -15,8 +15,10 @@ export async function getGoogleAuth() {
   const keyfile = await getGoogleKeyfile();
 
   const auth = new JWT({
-    email: keyfile.email,
+    email: keyfile.client_email,
     key: keyfile.private_key,
+    clientId: keyfile.client_id,
+    projectId: keyfile.project_id,
     scopes: [
       "https://www.googleapis.com/auth/calendar",
       "https://www.googleapis.com/auth/calendar.events",

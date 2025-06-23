@@ -38,10 +38,10 @@
 }
 
 @theme {
-  --font-roboto: var(--font-roboto);
-  --font-roboto-condensed: var(--font-roboto-condensed);
+  --font-lato: var(--font-lato);
+  --font-exo: var(--font-exo);
 }
 
 body {
-  font-family: var(--font-roboto);
+  font-family: var(--font-lato);
 }

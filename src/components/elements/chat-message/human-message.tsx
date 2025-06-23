@@ -6,8 +6,8 @@ export function HumanMessage({ content }: ChatMessageProps) {
     <div className="max-w-fit">
       <div
         className={cn(
-          "rounded-xl p-2 text-sm",
-          "border-indigo-400 border bg-indigo-200",
+          "rounded-lg py-2 px-4 text-base",
+          "border border-neutral-300 bg-neutral-100",
           "whitespace-pre-line"
         )}
       >

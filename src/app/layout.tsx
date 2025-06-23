@@ -1,16 +1,22 @@
 import type { Metadata } from "next";
-import { Roboto, Roboto_Condensed } from "next/font/google";
+import {
+  Exo_2,
+  Geist,
+  Geist_Mono,
+  Lato,
+} from "next/font/google";
 import "./globals.css";
 import cn from "@/lib/utils";
 
-const roboto = Roboto({
-  variable: "--font-roboto",
+const exo = Exo_2({
+  variable: "--font-exo",
   subsets: ["latin"],
 });
 
-const robotoCondensed = Roboto_Condensed({
-  variable: "--font-roboto-condensed",
+const lato = Lato({
+  variable: "--font-lato",
   subsets: ["latin"],
+  weight: ["100", "300", "400", "700", "900"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +34,7 @@ export default function RootLayout({
     <html lang="en" data-theme="light">
       <body
         className={cn(
-          `${roboto.variable} ${robotoCondensed.variable} antialiased`
+          `${exo.variable} ${lato.variable} antialiased`
         )}
       >
         {children}

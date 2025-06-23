@@ -16,7 +16,7 @@ const googleCalendarViewSchema = z.object({
     .describe("The end time for the search, in RFC3339 timestamp format."),
 });
 
-export async function createGoogleCalendarViewTool(
+export function createGoogleCalendarViewTool(
   calendar: calendar_v3.Calendar,
   calendarId: string
 ) {

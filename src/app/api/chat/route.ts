@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import {
-  StoredMessage,
-  mapStoredMessageToChatMessage,
-} from "@langchain/core/messages";
 import { createAgent } from "@/lib/agents";
+import { prisma } from "@/lib/prisma";
+import { generateThreadDetailsTool } from "@/lib/agents/tools/generate-thread-details";
 
 interface ChatRequest {
   id: string;
-  messages: StoredMessage[];
+  message: string;
   threadState?: any;
 }
 
@@ -21,26 +19,67 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No user found" }, { status: 401 });
   }
 
+  // Find the thread by id and user id
+  let thread = body.id
+    ? await prisma.thread.findUnique({
+        where: {
+          id: body.id,
+          userId: data.user.id,
+        },
+      })
+    : null;
+
+  // Create a new thread if it doesn't exist
+  if (!thread) {
+    thread = await prisma.thread.create({
+      data: {
+        userId: data.user.id,
+        state: {},
+      },
+    });
+  }
+
   const agent = await createAgent({
     userName: data.user.user_metadata.full_name,
     email: data.user.user_metadata.email,
+    calendarId: data.user.user_metadata.email,
   });
-
-  const incomingMessages = body.messages.map(mapStoredMessageToChatMessage);
 
   const response = await agent.invoke(
     {
-      messages: incomingMessages,
-      ...(body.threadState ? body.threadState : {}),
+      messages: [
+        {
+          type: "user",
+          content: body.message,
+        },
+      ],
+      ...(thread.state ? (thread.state as any) : {}),
     },
     {
-      debug: true,
+      configurable: {
+        thread_id: thread.id,
+      },
     }
   );
 
   const { messages, ...threadState } = response;
 
+  // Generate thread details
+  const { title, summary } = await generateThreadDetailsTool.invoke({
+    content: messages.map((msg) => JSON.stringify(msg.toJSON())).join("\n"),
+  });
+
+  // Update the thread with the generated details
+  await prisma.thread.update({
+    where: { id: thread.id },
+    data: {
+      title,
+      summary,
+    },
+  });
+
   return NextResponse.json({
+    threadId: thread.id,
     messages: messages.map((msg) => msg.toDict()),
     threadState,
   });

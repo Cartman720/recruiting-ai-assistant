@@ -8,11 +8,23 @@
   p,
   ol,
   ul {
-    @apply mb-3;
+    @apply mb-4;
+
+    &:last-child {
+      @apply mb-0;
+    }
   }
 
   ul,
   ol {
     @apply list-disc pl-6;
+  }
+
+  a {
+    @apply text-blue-500 transition-colors;
+
+    &:hover {
+      @apply text-blue-800;
+    }
   }
 }

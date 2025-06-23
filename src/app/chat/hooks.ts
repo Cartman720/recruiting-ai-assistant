@@ -1,18 +1,21 @@
+"use client";
+
 import cuid from "cuid";
-import { FormEvent } from "react";
+import { FormEvent, useEffect } from "react";
 import { useSetState } from "react-use";
 
 interface UseChatState<T, TS> {
-  id: string;
+  id?: string | null;
   input: string;
   messages: T[];
   threadState: TS;
   loading: boolean;
 }
 
-interface UseChatOptions {
-  id: string | (() => string);
+interface UseChatOptions<T = any> {
+  id?: string | null;
   api: string;
+  initialMessages?: T[];
 }
 
 interface UseChatReturn<T, TS> extends UseChatState<T, TS> {
@@ -21,12 +24,12 @@ interface UseChatReturn<T, TS> extends UseChatState<T, TS> {
 }
 
 export function useChat<T = any, TS = any>(
-  options: UseChatOptions
+  options: UseChatOptions<T>
 ): UseChatReturn<T, TS> {
   const [state, setState] = useSetState<UseChatState<T, TS>>({
-    id: typeof options.id === "function" ? options.id() : options.id,
+    id: options.id ?? null,
     input: "",
-    messages: [],
+    messages: options.initialMessages ?? [],
     threadState: {} as TS,
     loading: false,
   });
@@ -58,17 +61,18 @@ export function useChat<T = any, TS = any>(
       method: "POST",
       body: JSON.stringify({
         id: state.id,
-        messages: newMessages,
+        message: state.input,
         ...(state.threadState ? { threadState: state.threadState } : {}),
       }),
     });
 
     const data = await response.json();
 
-    const { messages, threadState } = data;
+    const { threadId, messages, threadState } = data;
 
     setState((prev) => ({
       ...prev,
+      id: threadId,
       messages,
       threadState,
       loading: false,
