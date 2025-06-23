@@ -7,7 +7,7 @@ import {
   ChatMessageType,
 } from "@/components/elements/chat-message";
 import { cn } from "@/lib/utils";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useChat } from "../hooks";
 import { PlaceholderBanner } from "../components/placeholder-banner";
 
@@ -15,7 +15,7 @@ const actions = [
   "Search for Python Developers",
   "Locate Remote workers in California",
   "What free slots I've tomorrow noon at New York time?",
-  "Find Data Engineers in US",
+  "Find Java Developers in US",
 ];
 
 interface ChatClientPageProps {
@@ -26,8 +26,8 @@ interface ChatClientPageProps {
 
 export default function ChatClientPage({ initialState }: ChatClientPageProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const chatId = searchParams.get("chat");
+  const params = useParams();
+  const chatId = params.slugs?.[0];
 
   const { messages, input, setInput, handleSubmit, loading, id } = useChat({
     api: "/api/chat",

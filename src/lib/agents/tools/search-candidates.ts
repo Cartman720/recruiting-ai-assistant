@@ -112,7 +112,7 @@ async function searchCandidates(input: SearchInput, config: any) {
 
   const results = await vectorStore.similaritySearchWithScore(
     query,
-    10,
+    5,
     metadataFilters
   );
 
