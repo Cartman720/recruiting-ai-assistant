@@ -58,80 +58,6 @@ export async function getChatState(id: string) {
   };
 }
 
-export async function streamAgent(
-  message: string,
-  stream: any,
-  id?: string | null
-) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getSession();
-
-  if (!data?.session?.user) {
-    return {
-      error: "No user found",
-    };
-  }
-
-  // Find the thread by id and user id
-  let thread = id
-    ? await prisma.thread.findUnique({
-        where: {
-          id,
-          userId: data.session.user.id,
-        },
-      })
-    : null;
-
-  // Create a new thread if it doesn't exist
-  if (!thread) {
-    thread = await prisma.thread.create({
-      data: {
-        userId: data.session.user.id,
-        state: {},
-      },
-    });
-  }
-
-  const agent = await createAgent({
-    userName: data.session.user.user_metadata.full_name,
-    email: data.session.user.user_metadata.email,
-    calendarId: data.session.user.user_metadata.email,
-    googleAccessToken: data.session.provider_token,
-  });
-
-  const agentStream = await agent.stream(
-    {
-      messages: [
-        {
-          type: "user",
-          content: message,
-        },
-      ],
-    },
-    {
-      configurable: {
-        thread_id: thread.id,
-      },
-      streamMode: ["messages"],
-    }
-  );
-
-  for await (const item of agentStream) {
-    console.log(item);
-    stream.update(JSON.parse(JSON.stringify(item, null, 2)));
-  }
-
-  stream.done();
-}
-
-export async function runAgent(message: string, threadId?: string | null) {
-  const stream = createStreamableValue();
-
-  await streamAgent(message, stream, threadId);
-
-  return { streamData: stream.value };
-}
-
 export async function generateThreadDetails(threadId: string) {
   const state = await getChatState(threadId);
 
@@ -139,7 +65,7 @@ export async function generateThreadDetails(threadId: string) {
 
   const { title, summary } = await generateThreadDetailsTool.invoke({
     content: messages
-      .map((msg: any) => JSON.stringify(msg.toJSON()))
+      .map((msg: any) => JSON.stringify(msg.data.content))
       .join("\n"),
   });
 

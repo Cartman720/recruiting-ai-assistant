@@ -101,7 +101,9 @@ export function CandidateSearchResults({ items }: { items: any[] }) {
                 <span className="font-semibold">{company}</span>
               </div>
             )}
-            <div className="text-gray-600 text-sm">{candidate.summary}</div>
+            <div className="text-gray-600 line-clamp-2 my-2 text-sm">
+              {candidate.summary}
+            </div>
             <div className="flex flex-wrap gap-2 mt-1">
               {candidate.skills &&
                 candidate.skills.slice(0, 5).map((skill: string, i: number) => (

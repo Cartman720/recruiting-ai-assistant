@@ -113,18 +113,18 @@ export default function ChatClientPage({ initialState }: ChatClientPageProps) {
               )}
             </div>
           </div>
-
-          {/* Chatbar */}
-          <Chatbar
-            value={input}
-            onChange={setInput}
-            onSend={handleSubmit}
-            onClear={handleClear}
-            isLoading={loading}
-            hasStarted={hasStarted}
-          />
         </div>
       </div>
+
+      {/* Chatbar */}
+      <Chatbar
+        value={input}
+        onChange={setInput}
+        onSend={handleSubmit}
+        onClear={handleClear}
+        isLoading={loading}
+        hasStarted={hasStarted}
+      />
     </div>
   );
 }
