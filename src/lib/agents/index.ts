@@ -25,7 +25,6 @@ export async function createAgent({
   const llm = new ChatOpenAI({
     model: "gpt-4.1",
     apiKey: process.env.OPENAI_API_KEY,
-    verbose: true,
   });
 
   const { googleCalendarViewTool, googleCalendarCreateTool } =

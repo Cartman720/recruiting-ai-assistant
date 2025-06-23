@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import ChatClientPage from "./page.client";
-import { getChatState } from "../actions";
+import { getChatState } from "@/lib/actions/chat";
 
 export const dynamic = "force-dynamic";
 

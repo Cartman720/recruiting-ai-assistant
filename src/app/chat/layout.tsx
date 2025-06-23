@@ -2,7 +2,7 @@ import { PropsWithChildren } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "./components/sidebar";
-import { getThreads } from "./actions";
+import { getChatThreads } from "@/lib/actions/chat";
 
 export default async function AuthLayout({ children }: PropsWithChildren) {
   const supabase = await createClient();
@@ -13,7 +13,7 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
     redirect("/login");
   }
 
-  const threads = await getThreads(data.user.id);
+  const threads = await getChatThreads(data.user.id);
 
   return (
     <div className="flex h-screen w-full">
