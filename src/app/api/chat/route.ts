@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAgent } from "@/lib/agents";
 import { prisma } from "@/lib/prisma";
 import { generateThreadDetailsTool } from "@/lib/agents/tools/generate-thread-details";
+import { generateThreadDetails } from "@/lib/actions/chat";
 
 interface ChatRequest {
   id: string;
@@ -63,21 +64,11 @@ export async function POST(req: NextRequest) {
     }
   );
 
+  after(async () => {
+    await generateThreadDetails(thread.id);
+  });
+
   const { messages, ...threadState } = response;
-
-  // Generate thread details
-  const { title, summary } = await generateThreadDetailsTool.invoke({
-    content: messages.map((msg) => JSON.stringify(msg.toJSON())).join("\n"),
-  });
-
-  // Update the thread with the generated details
-  await prisma.thread.update({
-    where: { id: thread.id },
-    data: {
-      title,
-      summary,
-    },
-  });
 
   return NextResponse.json({
     threadId: thread.id,
