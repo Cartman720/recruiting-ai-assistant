@@ -19,13 +19,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No user found" }, { status: 401 });
   }
 
-  const userOAuthIntegration = await prisma.userOAuthIntegration.findFirst({
-    where: {
-      userId: data.session.user.id,
-      provider: "google",
-    },
-  });
-
   // Find the thread by id and user id
   let thread = body.id
     ? await prisma.thread.findUnique({
