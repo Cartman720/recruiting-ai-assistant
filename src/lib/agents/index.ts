@@ -13,34 +13,36 @@ interface AgentOptions {
   userName: string;
   email: string;
   calendarId: string;
+  googleAccessToken?: string | null;
 }
 
 export async function createAgent({
   userName,
   email,
   calendarId,
+  googleAccessToken,
 }: AgentOptions) {
   const llm = new ChatOpenAI({
-    model: "o4-mini",
+    model: "gpt-4.1",
     apiKey: process.env.OPENAI_API_KEY,
-    reasoning: {
-      effort: "high",
-    },
     verbose: true,
   });
 
   const { googleCalendarViewTool, googleCalendarCreateTool } =
     await createGoogleCalendarTools({
       calendarId,
+      googleAccessToken,
     });
 
   const tools: any[] = [
     searchCandidatesTool,
     getCandidateDetailsTool,
     getLastSearchResultsTool,
-    googleCalendarViewTool,
-    googleCalendarCreateTool,
   ];
+
+  if (googleAccessToken) {
+    tools.push(googleCalendarViewTool, googleCalendarCreateTool);
+  }
 
   const prompt = (
     state: typeof MessagesAnnotation.State

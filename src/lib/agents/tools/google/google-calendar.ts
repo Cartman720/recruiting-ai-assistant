@@ -4,10 +4,19 @@ import { createGoogleCalendarCreateTool } from "./google-calendar-create";
 
 export async function createGoogleCalendarTools({
   calendarId,
+  googleAccessToken,
 }: {
   calendarId: string;
+  googleAccessToken?: string | null;
 }) {
-  const auth = await getGoogleAuth();
+  if (!googleAccessToken) {
+    return {
+      googleCalendarViewTool: null,
+      googleCalendarCreateTool: null,
+    };
+  }
+
+  const auth = await getGoogleAuth(googleAccessToken);
   const calendar = await getGoogleCalendar(auth);
 
   const googleCalendarViewTool = createGoogleCalendarViewTool(

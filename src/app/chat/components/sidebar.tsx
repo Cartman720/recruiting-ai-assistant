@@ -6,6 +6,7 @@ import cn from "@/lib/utils";
 import { formatDate, formatDistanceToNow } from "date-fns";
 import { EditIcon, MessageSquare, PanelLeft, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 interface SidebarProps {
   threads: ThreadProps[];
@@ -14,6 +15,18 @@ interface SidebarProps {
 export function Sidebar({ threads = [] }: SidebarProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+
+  const supabase = createClient();
+
+  async function signOut() {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      console.error(error);
+    }
+    
+    router.push("/login");
+  }
 
   return (
     <div
@@ -30,7 +43,7 @@ export function Sidebar({ threads = [] }: SidebarProps) {
           isOpen ? "w-72" : "w-16"
         )}
       >
-        <div className="flex flex-col">
+        <div className="flex flex-col h-full">
           <div className="h-14 flex justify-between items-center gap-4 p-4">
             <div
               className={cn(
@@ -80,6 +93,16 @@ export function Sidebar({ threads = [] }: SidebarProps) {
               ))}
             </ul>
           </div>
+
+          <div className="flex flex-col gap-2 mt-auto p-4">
+            <ul className="flex flex-col gap-2">
+              <li>
+                <button onClick={signOut} className="btn btn-ghost w-full">
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -97,7 +120,7 @@ function ThreadItem({ id, title, summary, createdAt }: ThreadProps) {
   const _formatDate = (date: Date) => {
     // Ensure we're working with UTC to avoid hydration issues
     const utcDate = new Date(date.toISOString());
-    
+
     const dateFormat = formatDistanceToNow(utcDate, {
       addSuffix: true,
       includeSeconds: false,

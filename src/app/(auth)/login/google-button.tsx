@@ -12,7 +12,14 @@ export default function GoogleButton() {
         client.auth.signInWithOAuth({
           provider: "google",
           options: {
-            redirectTo: `${window.location.origin}/auth/callback`,
+            redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+            scopes: [
+              "openid",
+              "email",
+              "profile",
+              "https://www.googleapis.com/auth/calendar",
+              "https://www.googleapis.com/auth/calendar.events",
+            ].join(" "),
           },
         })
       }

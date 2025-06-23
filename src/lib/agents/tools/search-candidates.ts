@@ -61,6 +61,7 @@ const createFilters = (input: Omit<SearchInput, "query">) => {
     expertiseLevel,
     languages,
     country,
+    skills,
     state,
   } = input;
 
@@ -81,6 +82,10 @@ const createFilters = (input: Omit<SearchInput, "query">) => {
   if (educationLevel !== null) {
     filters.educationLevel = educationLevel;
   }
+
+  // if (skills && skills.length > 0) {
+  //   filters.skills = { $in: skills };
+  // }
 
   if (expertiseLevel !== null) {
     filters.expertiseLevel = expertiseLevel;

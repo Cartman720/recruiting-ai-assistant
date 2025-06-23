@@ -5,6 +5,12 @@
     width: 100%;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
   p,
   ol,
   ul {
@@ -26,5 +32,32 @@
     &:hover {
       @apply text-blue-800;
     }
+  }
+
+  hr {
+    @apply my-4 border-neutral-200;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-exo);
+  }
+
+  h4 {
+    @apply text-base font-bold;
+  }
+
+  h3 {
+    @apply text-lg font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
   }
 }

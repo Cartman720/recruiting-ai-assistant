@@ -12,19 +12,26 @@ interface ChatRequest {
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getSession();
   const body: ChatRequest = await req.json();
 
-  if (!data?.user) {
+  if (!data?.session?.user) {
     return NextResponse.json({ error: "No user found" }, { status: 401 });
   }
+
+  const userOAuthIntegration = await prisma.userOAuthIntegration.findFirst({
+    where: {
+      userId: data.session.user.id,
+      provider: "google",
+    },
+  });
 
   // Find the thread by id and user id
   let thread = body.id
     ? await prisma.thread.findUnique({
         where: {
           id: body.id,
-          userId: data.user.id,
+          userId: data.session.user.id,
         },
       })
     : null;
@@ -33,16 +40,17 @@ export async function POST(req: NextRequest) {
   if (!thread) {
     thread = await prisma.thread.create({
       data: {
-        userId: data.user.id,
+        userId: data.session.user.id,
         state: {},
       },
     });
   }
 
   const agent = await createAgent({
-    userName: data.user.user_metadata.full_name,
-    email: data.user.user_metadata.email,
-    calendarId: data.user.user_metadata.email,
+    userName: data.session.user.user_metadata.full_name,
+    email: data.session.user.user_metadata.email,
+    calendarId: data.session.user.user_metadata.email,
+    googleAccessToken: data.session.provider_token,
   });
 
   const response = await agent.invoke(

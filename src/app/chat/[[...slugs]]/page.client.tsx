@@ -55,6 +55,8 @@ export default function ChatClientPage({ initialState }: ChatClientPageProps) {
     setInput("");
   };
 
+  console.log(messages);
+
   return (
     <div className="bg-base-200 flex flex-col min-h-screen">
       <div

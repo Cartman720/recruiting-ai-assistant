@@ -15,17 +15,11 @@ export function ChatMessage({
   }
 
   if (type === "tool") {
-    return (
-      <ToolMessage
-        toolCalls={toolCalls}
-        artifact={artifact}
-        content={content}
-      />
-    );
+    return <ToolMessage artifact={artifact} />;
   }
 
   if (type === "ai") {
-    return <AIMessage content={content} />;
+    return <AIMessage content={content} toolCalls={toolCalls} />;
   }
 
   return "Unknown message type: " + type;
