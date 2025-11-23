@@ -2,7 +2,6 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAgent } from "@/lib/agents";
 import { prisma } from "@/lib/prisma";
-import { generateThreadDetailsTool } from "@/lib/agents/tools/generate-thread-details";
 import { generateThreadDetails } from "@/lib/actions/chat";
 
 interface ChatRequest {
