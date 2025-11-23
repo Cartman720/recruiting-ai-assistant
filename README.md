@@ -6,6 +6,18 @@ A lab project demonstrating an AI-powered candidate search and recruiter assista
 
 SoftGang Search is an experimental recruitment assistant that combines semantic search, AI-powered conversation, and integrated productivity tools to streamline the candidate sourcing and engagement process. The platform uses LangGraph to create intelligent agents that can understand natural language queries, search through candidate databases, and perform actions like scheduling interviews.
 
+## 🎥 Demo
+
+Watch a demonstration of the platform in action:
+
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=aNmmMkWY-_s">
+    <img src="https://img.youtube.com/vi/aNmmMkWY-_s/maxresdefault.jpg" alt="SoftGang Search Demo" width="600">
+  </a>
+  <br>
+  <a href="https://www.youtube.com/watch?v=aNmmMkWY-_s">Watch on YouTube</a>
+</div>
+
 ## ✨ Features
 
 ### 🔍 Candidate Search
